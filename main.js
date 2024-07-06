@@ -72,10 +72,7 @@ function agregarPersona() {
 
 function manejarAceptar() {
     const nuevaPersona = obtenerDatosFormulario();
-    if (nuevaPersona) {
-        if (!validarCampos(nuevaPersona)) {
-            return;
-        }
+    if (nuevaPersona && validarCampos(nuevaPersona)) {
         if (nuevaPersona.id) {
             actualizarPersona(nuevaPersona);
         } else {
@@ -181,6 +178,18 @@ function ocultarSpinner() {
     $("spinnerContainer").style.display = "none";
 }
 
+function actualizarVisibilidadCampos(tipo) {
+    if (tipo === "Ciudadano") {
+        $("ciudadano").style.display = "block";
+        $("extranjero").style.display = "none";
+        $("abmDni").value = "";
+    } else {
+        $("ciudadano").style.display = "none";
+        $("extranjero").style.display = "block";
+        $("abmPaisOrigen").value = "";
+    }
+}
+
 function modificarPersona(id) {
     mostrarEncabezado("Modificación");
     const persona = LISTAPERSONAS.find(p => p.id.toString() == id.toString());
@@ -190,7 +199,11 @@ function modificarPersona(id) {
     $("abmNombre").value = persona.nombre;
     $("abmApellido").value = persona.apellido;
     $("abmFecha").value = persona.fechaNacimiento;
-    $("selectTipo").value = persona instanceof Ciudadano ? "Ciudadano" : "Extranjero";
+    if (persona.dni !== undefined) {
+        $("selectTipo").value = "Ciudadano";
+    } else {
+        $("selectTipo").value = "Extranjero";
+    }
 	Array.from(document.querySelectorAll('#formularioAbm input, #formularioAbm select')).forEach(element => {
         element.readOnly = false;
         element.disabled = false;
@@ -199,17 +212,19 @@ function modificarPersona(id) {
     $("abmId").setAttribute('disabled', true);
 
     actualizarVisibilidadCampos($("selectTipo").value);
-    if (persona instanceof Ciudadano) {
+    if (persona.dni !== undefined) {
         $("abmDni").value = persona.dni;
+        $("abmPaisOrigen").value = "";
     } else {
         $("abmPaisOrigen").value = persona.paisOrigen;
+        $("abmDni").value = "";
     }
     $("formularioAbm").style.display = "block";
     $("formularioLista").style.display = "none";
 }
 
 function mostrarEncabezado(modo) {
-    $("encabezadoAbm").innerHTML = `${modo} de persona`;
+    $("encabezadoAbm").innerHTML = `${modo}`;
 }
 
 function ocultarFormularioAbm() {
@@ -224,16 +239,6 @@ function limpiarFormularioAbm() {
     $("abmFecha").value = "";
     $("abmDni").value = "";
     $("abmPaisOrigen").value = "";
-}
-
-function actualizarVisibilidadCampos(tipo) {
-    if (tipo === "Ciudadano") {
-        $("ciudadano").style.display = "block";
-        $("extranjero").style.display = "none";
-    } else {
-        $("ciudadano").style.display = "none";
-        $("extranjero").style.display = "block";
-    }
 }
 
 function eliminarPersona(id) {
